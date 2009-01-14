@@ -8,6 +8,7 @@ import itrafgen.core.Graphicupdate;
 import itrafgen.core.Point;
 import itrafgen.core.ThEmeteur;
 import itrafgen.core.ThRecepteur;
+import itrafgen.gui.AttentionBox;
 import itrafgen.gui.ItrafgenView;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -31,6 +32,7 @@ import itrafgen.gui.FluxBox;
 import itrafgen.gui.GraphBox;
 
 import itrafgen.gui.Interfchooser;
+import java.io.File;
 import javax.swing.JFrame;
 
 /**
@@ -63,8 +65,7 @@ public class ItrafgenApp extends SingleFrameApplication {
            
 
         
-
-    	
+        
 
         
         //fenetre de choix!!
@@ -72,12 +73,13 @@ public class ItrafgenApp extends SingleFrameApplication {
 
         
     	//System.out.print(" MAC address:");
+         if(!(intemission.addresses.length ==0 || intemission.addresses.length ==0 || intemission.mac_address == null || intreception.mac_address == null)){
     	macemission = "";
-    	  for (byte b : devices[0].mac_address){
+    	  for (byte b : intemission.mac_address){
     		   macemission = macemission + (Integer.toHexString(b&0xff) + ":");
     	  }
       	macreception = "";
-  	  for (byte b : devices[1].mac_address){
+  	  for (byte b : intreception.mac_address){
   		macreception = macreception + (Integer.toHexString(b&0xff) + ":");
   	  }
     	  //System.out.println();
@@ -85,11 +87,34 @@ public class ItrafgenApp extends SingleFrameApplication {
   	  ipreception = "";
 
     	  //print out its IP address, subnet mask and broadcast address
-    	  NetworkInterfaceAddress a = devices[0].addresses[0];
+          //erreur probable avec les addresse en IPv6 IPv4 : confusion complete :S
+    	  NetworkInterfaceAddress a = intemission.addresses[0];
     	    ipemission = ("" + a.address).split("/")[1];
-      	  NetworkInterfaceAddress bb = devices[1].addresses[0];
+      	  NetworkInterfaceAddress bb = intreception.addresses[0];
   	    ipreception = ("" + bb.address).split("/")[1];
+       }
+         else{
+              System.out.println("configure vos interfaces");
+            java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                AttentionBox dialog = new AttentionBox(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        dialog.setLocation(
+        (screenSize.width-dialog.getWidth())/2,
+        (screenSize.height-dialog.getHeight())/2
+        );
+                
+                dialog.getJLabel1().setText("Verifiez vos interfaces (pas d'adresse IP)");
+                dialog.setVisible(true);
+            }
 
+        });
+         }
 
     	ThRecepteur b = new ThRecepteur();
 
@@ -214,6 +239,7 @@ public class ItrafgenApp extends SingleFrameApplication {
      * Main method launching the application.
      */
     public static void main(String[] args) {
+        try{
         devices = JpcapCaptor.getDeviceList();
         Interfchooser u = new Interfchooser();
         java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
@@ -223,5 +249,28 @@ public class ItrafgenApp extends SingleFrameApplication {
         );
          u.show();
         //launch(ItrafgenApp.class, args);
+        }
+        catch(java.lang.UnsatisfiedLinkError i){
+                          System.out.println("configure vos interfaces");
+            java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                AttentionBox dialog = new AttentionBox(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        dialog.setLocation(
+        (screenSize.width-dialog.getWidth())/2,
+        (screenSize.height-dialog.getHeight())/2
+        );
+        dialog.getJLabel1().setText("Jpcap modifié n'est pas installé : aide en ligne");
+        dialog.setVisible(true);
+                }
+
+        });
+        }
+        
     }
 }
