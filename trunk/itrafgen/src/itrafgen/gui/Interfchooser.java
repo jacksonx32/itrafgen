@@ -14,6 +14,7 @@ package itrafgen.gui;
 import itrafgen.ItrafgenApp;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -37,7 +38,32 @@ public class Interfchooser extends javax.swing.JFrame {
     public String[] strings;
     /** Creates new form Interfchooser */
     public Interfchooser() {
-       
+       File entryFile = new File("protocol/Ethernet.xml");
+
+        if(!entryFile.exists()){
+            System.out.println("pas de dossier protocol !");
+            java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                AttentionBox dialog = new AttentionBox(new javax.swing.JFrame(), true);
+                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        System.exit(0);
+                    }
+                });
+                java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        dialog.setLocation(
+        (screenSize.width-dialog.getWidth())/2,
+        (screenSize.height-dialog.getHeight())/2
+        );
+
+                dialog.getJLabel1().setText("Pas de dossier protocol, copier le dossier et redemarrez");
+                dialog.setVisible(true);
+            }
+
+        });
+        }
+        else{
+
         initComponents();
         if(ItrafgenApp.devices.length==0){
             System.out.println("redemarrer en root");
@@ -73,6 +99,7 @@ public class Interfchooser extends javax.swing.JFrame {
             public int getSize() { return strings.length; }
             public Object getElementAt(int i) { return strings[i]; }
         });
+        }
         
     }
 
