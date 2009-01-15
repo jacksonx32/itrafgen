@@ -89,8 +89,15 @@ public class ItrafgenApp extends SingleFrameApplication {
     	  //print out its IP address, subnet mask and broadcast address
           //erreur probable avec les addresse en IPv6 IPv4 : confusion complete :S
     	  NetworkInterfaceAddress a = intemission.addresses[0];
+          if(!("" + a.address).contains(".")){//cas de mac os x (prend ipv6)
+            a = intemission.addresses[1];
+          }
     	    ipemission = ("" + a.address).split("/")[1];
+            
       	  NetworkInterfaceAddress bb = intreception.addresses[0];
+          if(!("" + bb.address).contains(".")){//cas de mac os x (prend ipv6)
+            bb = intreception.addresses[1];
+          }
   	    ipreception = ("" + bb.address).split("/")[1];
        }
          else{
